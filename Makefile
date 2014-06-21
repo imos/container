@@ -8,6 +8,22 @@ stop:
 	make --file=$$(hostname --short).mk stop
 .PHONY: stop
 
+restart: stop
+	make --file=$$(hostname --short).mk start
+.PHONY: restart
+
+%-start:
+	make --file=$$(hostname --short).mk $*-start
+.PHONY: %-start
+
+%-stop:
+	make --file=$$(hostname --short).mk $*-stop
+.PHONY: %-stop
+
+%-restart: %-stop
+	make --file=$$(hostname --short).mk $*-start
+.PHONY: %-restart
+
 install:
 	id cloud-admin || useradd --home-dir=/home/cloud-admin --create-home \
 	    --uid=20601 --user-group --shell=/bin/bash cloud-admin

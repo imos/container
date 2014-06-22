@@ -3,6 +3,5 @@ MAINTAINER Kentaro Imajo <docker@imoz.jp>
 RUN apt-get update -qq && apt-get -y install nginx
 RUN id www-data 2>/dev/null || useradd --shell=/sbin/nologin www-data
 ADD config/nginx.conf /etc/nginx/nginx.conf
-ADD config/default /etc/nginx/sites-available/default
 EXPOSE 80
 ENTRYPOINT nginx

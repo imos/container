@@ -1,4 +1,4 @@
-SERVICES := dunsparce dropbox nginx sslh php-fcgi
+SERVICES := dunsparce dropbox nginx sslh php-fcgi phpmyadmin mysql
 
 start: check $(addsuffix -poststart, $(SERVICES))
 .PHONY: start
@@ -10,7 +10,11 @@ check:
 	test "$$(whoami)" = 'root'
 .PHONY: check
 
-dropbox-poststart: dropbox-start dunsparce-start
+# Kill services using /cloud.
+dunsparce-prestop: dropbox-poststop nginx-poststop php-fcgi-poststop
+.PHONY: dunsparce-prestop
+
+dropbox-poststart: dropbox-start dunsparce-poststart
 	for year in 2013 2014; do for mode in rw ro; do \
 	  mkdir -p /cloud/$$mode/dropbox/icfpc/$$year; \
 	  { sshfs \
@@ -32,8 +36,13 @@ dropbox-prestop:
 	done; done; wait
 .PHONY: dropbox-prestop
 
-dunsparce-prestop: dropbox-prestop
-.PHONY: dunsparce-prestop
+# /cloud/ro/dunsparce/www must be mounted beforehand.
+nginx-prestart: dunsparce-poststart
+.PHONY: nginx-prestart
+
+# /cloud/ro/dunsparce/www must be mounted beforehand.
+php-fcgi-prestart: dunsparce-poststart
+.PHONY: php-fcgi-prestart
 
 %-prestart: %/Makefile
 	-@:

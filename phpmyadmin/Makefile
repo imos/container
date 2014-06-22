@@ -1,18 +1,16 @@
 CPU ?= 100
 MEMORY ?= 100M
 BIND_ADDRESS ?= 0.0.0.0
-BIND_PORT ?= 80
+BIND_PORT ?= 8001
 
-SERVICE := nginx
+SERVICE := phpmyadmin
 
 start: check
 	if ! docker top $(SERVICE) >/dev/null 2>/dev/null; then \
 	  docker build --tag=imos/$(SERVICE) .; \
-	  mkdir -p /cloud/rw/$$(hostname --short)/www; \
 	  docker rm --force $(SERVICE) 2>/dev/null || true; \
 	  docker run \
 	      --name=$(SERVICE) --hostname=$(SERVICE) \
-	      --volume=/cloud/ro/$$(hostname --short)/www:/www:ro \
 	      --publish=$(BIND_ADDRESS):$(BIND_PORT):80 \
 	      --memory=$(MEMORY) --cpu-shares=$(CPU) --detach imos/$(SERVICE); \
 	fi

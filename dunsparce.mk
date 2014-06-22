@@ -1,4 +1,4 @@
-SERVICES := dunsparce dropbox nginx sslh
+SERVICES := dunsparce dropbox nginx sslh php-fcgi
 
 start: check $(addsuffix -poststart, $(SERVICES))
 .PHONY: start
@@ -35,7 +35,7 @@ dropbox-prestop:
 dunsparce-prestop: dropbox-prestop
 .PHONY: dunsparce-prestop
 
-%-prestart:
+%-prestart: %/Makefile
 	-@:
 .PHONY: %-prestart
 
@@ -47,7 +47,7 @@ dunsparce-prestop: dropbox-prestop
 	-@:
 .PHONY: %-poststart
 
-%-prestop:
+%-prestop: %/Makefile
 	-@:
 .PHONY: %-prestop
 

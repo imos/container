@@ -6,11 +6,13 @@ BIND_PORT ?= 80
 SERVICE := nginx
 
 start: check
-	docker build --tag=imos/$(SERVICE) .
-	docker run --env=MASTER_HOST=$$(hostname) \
-	    --name=$(SERVICE) --hostname=$(SERVICE) \
-	    --publish=$(BIND_ADDRESS):$(BIND_PORT):80 \
-	    --memory=$(MEMORY) --cpu-shares=$(CPU) --detach imos/$(SERVICE)
+	if ! docker top $(SERVICE) >/dev/null 2>/dev/null; then \
+	  docker build --tag=imos/$(SERVICE) .; \
+	  docker run --env=MASTER_HOST=$$(hostname) \
+	      --name=$(SERVICE) --hostname=$(SERVICE) \
+	      --publish=$(BIND_ADDRESS):$(BIND_PORT):80 \
+	      --memory=$(MEMORY) --cpu-shares=$(CPU) --detach imos/$(SERVICE); \
+	fi
 .PHONY: start
 
 stop: check

@@ -5,14 +5,18 @@ DISK ?= 5G
 SERVICE := dropbox
 
 start: check
-	e2fsck -y -f /storage/$(SERVICE)/image.dmg
-	resize2fs /storage/$(SERVICE)/image.dmg $(DISK)
-	mount -t auto -o loop /storage/$(SERVICE)/image.dmg /storage/$(SERVICE)
-	docker build --tag=imos/$(SERVICE) .
-	docker run \
-	    --name=$(SERVICE) --hostname=$(SERVICE) \
-	    --volume=/storage/$(SERVICE):/home/cloud-admin \
-	    --memory=$(MEMORY) --cpu-shares=$(CPU) --detach imos/$(SERVICE)
+	if ! mountpoint -q /storage/$(SERVICE); then \
+	  e2fsck -y -f /storage/$(SERVICE)/image.dmg; \
+	  resize2fs /storage/$(SERVICE)/image.dmg $(DISK); \
+	  mount -t auto -o loop /storage/$(SERVICE)/image.dmg /storage/$(SERVICE); \
+	fi
+	if ! docker top $(SERVICE) >/dev/null 2>/dev/null; then \
+	  docker build --tag=imos/$(SERVICE) .; \
+	  docker run \
+	      --name=$(SERVICE) --hostname=$(SERVICE) \
+	      --volume=/storage/$(SERVICE):/home/cloud-admin \
+	      --memory=$(MEMORY) --cpu-shares=$(CPU) --detach imos/$(SERVICE); \
+	fi
 .PHONY: start
 
 stop: check

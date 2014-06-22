@@ -3,14 +3,20 @@ DISK ?= 100G
 SERVICE := dunsparce
 
 start: check
-	resize2fs /storage/$(SERVICE)/image.dmg $(DISK)
-	mount --types=auto --options=loop \
-	    /storage/$(SERVICE)/image.dmg /storage/$(SERVICE)
-	mkdir -p /cloud/rw/$(SERVICE)
-	mount --bind /storage/$(SERVICE) /cloud/rw/$(SERVICE)
-	mkdir -p /cloud/ro/$(SERVICE)
-	mount --bind /storage/$(SERVICE) /cloud/ro/$(SERVICE)
-	mount -o remount,ro /cloud/ro/$(SERVICE)
+	if ! mountpoint -q /storage/$(SERVICE); then \
+	  resize2fs /storage/$(SERVICE)/image.dmg $(DISK); \
+	  mount --types=auto --options=loop \
+	      /storage/$(SERVICE)/image.dmg /storage/$(SERVICE); \
+	fi
+	if ! mountpoint -q /cloud/rw/$(SERVICE); then \
+	  mkdir -p /cloud/rw/$(SERVICE); \
+	  mount --bind /storage/$(SERVICE) /cloud/rw/$(SERVICE); \
+	fi
+	if ! mountpoint -q /cloud/ro/$(SERVICE); then \
+	  mkdir -p /cloud/ro/$(SERVICE); \
+	  mount --bind /storage/$(SERVICE) /cloud/ro/$(SERVICE); \
+	  mount -o remount,ro /cloud/ro/$(SERVICE); \
+	fi
 .PHONY: start
 
 stop: check
@@ -20,7 +26,7 @@ stop: check
 	done
 	-fuser --kill /storage/$(SERVICE)
 	-umount -f /storage/$(SERVICE)
-	-rm -rf /cloud
+	# rm -rf /cloud
 .PHONY: stop
 
 check:

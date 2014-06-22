@@ -13,15 +13,15 @@ restart: stop
 .PHONY: restart
 
 %-start:
-	make --file=$$(hostname --short).mk $*-start
+	make --file=$$(hostname --short).mk $*-poststart
 .PHONY: %-start
 
 %-stop:
-	make --file=$$(hostname --short).mk $*-stop
+	make --file=$$(hostname --short).mk $*-poststop
 .PHONY: %-stop
 
 %-restart: %-stop
-	make --file=$$(hostname --short).mk $*-start
+	make --file=$$(hostname --short).mk $*-poststart
 .PHONY: %-restart
 
 install:

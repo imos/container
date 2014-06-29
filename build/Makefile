@@ -1,7 +1,7 @@
 CPU ?= 100
-MEMORY ?= 100M
+MEMORY ?= 1G
 
-SERVICE := codebrowser
+SERVICE := build
 
 start: check
 	if ! docker top $(SERVICE) >/dev/null 2>/dev/null; then \
@@ -9,10 +9,9 @@ start: check
 	  docker rm --force $(SERVICE) 2>/dev/null || true; \
 	  docker run \
 	      --name=$(SERVICE) --hostname=$(SERVICE) \
-	      --publish=$(BIND_ADDRESS):$(BIND_PORT):80 \
 	      --volume=/storage/code/src:/code/src:ro \
 	      --volume=/storage/code/build:/code/build:rw \
-	      --volume=/storage/dunsparce/www/code/html:/code/html:rw \
+	      --volume=/storage/code/html:/code/html:rw \
 	      --memory=$(MEMORY) --cpu-shares=$(CPU) imos/$(SERVICE); \
 	fi
 .PHONY: start

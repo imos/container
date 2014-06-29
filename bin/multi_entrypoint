@@ -1,0 +1,14 @@
+#!/bin/bash
+
+Run() {
+  ppid="${1}"
+  command="${2}"
+
+  bash -c "${2}"
+  kill -9 "${1}"
+}
+
+for command in "${@}"; do
+  Run "${ppid}" "${command}" &
+done
+wait

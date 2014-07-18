@@ -7,6 +7,7 @@ start: check
 	if ! docker top $(SERVICE) >/dev/null 2>/dev/null; then \
 	  docker build --tag=imos/$(SERVICE) .; \
 	  docker rm --force $(SERVICE) 2>/dev/null || true; \
+	  sudo --user=cloud-admin -- bash -c "cd /storage/code/src; git pull"; \
 	  docker run \
 	      --name=$(SERVICE) --hostname=$(SERVICE) \
 	      --volume=/storage/code/src:/code/src:ro \
